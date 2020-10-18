@@ -60,7 +60,7 @@ This activity assumes the following:
 - You have access to a Kubernetes cluster
 - You have installed the **kubectl** tool on your preferred client whether that be Windows, Linux, or MacOS. You can read more about how to install kubectl at https://kubernetes.io/docs/tasks/tools/install-kubectl/. Kubectl needs to be in the path on your computer.
 
->**NOTE**: *If at anytime during the Activities of this Module you need to "start over" you can run the script **cleanup.ps1** or **cleanup.sh** and go back to the first Activity in 7.0 and run through all the steps again.*
+>**NOTE**: *If at anytime during the Activities of this Module you need to "start over" you can run the script **cleanup.sh** or **cleanup.sh** and go back to the first Activity in 7.0 and run through all the steps again.*
 
 <h3><img style="margin: 0px 15px 15px 0px;" src="https://github.com/microsoft/sqlworkshops/blob/master/graphics/checkmark.png?raw=true"><b><a name="actvitysteps7.0">Activity Steps</a></b></h3>
 
@@ -81,7 +81,7 @@ In this module, you will see the steps for kubectl on Powershell but the same se
 
 **STEP 1: Connect to the cluster**
 
-Consult your administrator for how to connect to your Kubernetes cluster. For Azure Kubernetes Service (AKS) you will use the Azure CLI (az) to get credentials to use kubectl. Modify the script **step1_connectcluster.ps1** to put in your *clustername* and *resource group*. 
+Consult your administrator for how to connect to your Kubernetes cluster. For Azure Kubernetes Service (AKS) you will use the Azure CLI (az) to get credentials to use kubectl. Modify the script **step1_connectcluster.sh** to put in your *clustername* and *resource group*. 
 
 >**NOTE**: For instructor led workshops, you instructor may provide you Azure credentials, the name of the Azure Resource Group, and AKS cluster name.*
 
@@ -89,7 +89,7 @@ In order to run these steps you must first login to Azure using the following co
 
 `az login`
 
-Run the script **step1_connectcluster.ps1** which runs the following command:
+Run the script **step1_connectcluster.sh** which runs the following command:
 
 ```powershell
 az aks get-credentials --resource-group <resource group> --name <clustername>
@@ -108,7 +108,7 @@ where path is the *path* to your home directory on your computer.
 
 **STEP 2: Create a namespace**
 
-A Kubernetes namespace is a scope object to organize your Kubernetes deployment and objects from other deployments. Run the script **step2_create_namespace.ps1** which runs the following command:
+A Kubernetes namespace is a scope object to organize your Kubernetes deployment and objects from other deployments. Run the script **step2_create_namespace.sh** which runs the following command:
 
 ```powershell
 kubectl create namespace mssql
@@ -121,11 +121,11 @@ When this command completes you should see a message like
 
 To now deploy in Kubernetes you can specify which namespace to use with parameters. But there is also a method to set the *context* to the new namespace. 
 
-**ST0P:** Modify the script **step3_setcontext.ps1** to put in your **clustername** and **resource group**.
+**ST0P:** Modify the script **step3_setcontext.sh** to put in your **clustername** and **resource group**.
 
 >**NOTE**: For instructor led workshops, you instructor will provide you the name of the Azure Resource Group and AKS cluster name.*
 
-Run the script **step3_setcontext.ps1** which runs these commands:
+Run the script **step3_setcontext.sh** which runs these commands:
 
 ```Powershell
 kubectl config set-context mssql --namespace=mssql --cluster=<clustername> --user=clusterUser_<resource group>_<clustername>
@@ -147,7 +147,7 @@ Switched to context "mssql".</pre>
 
 Deploy objects in Kubernetes is done in a declarative fashion. One of the key objects to create is a LoadBalancer service which is supported by default in Azure Kubernetes Service (AKS). A LoadBalancer provides a static public IP address mapped to a public IP address in Azure. You will be able to map the LoadBalancer to a SQL Server deployment including a port to map to the SQL Server port 1433. Non-cloud Kubernetes clusters also support a similar concept called a NodePort.
 
-Run the script **step4_create_service.ps1** to create the Load Balancer. This script uses the following command to create the LoadBalancer
+Run the script **step4_create_service.sh** to create the Load Balancer. This script uses the following command to create the LoadBalancer
 
 ```Powershell
 kubectl apply -f sqlloadbalancer.yaml --record
@@ -178,7 +178,7 @@ The creation of the LoadBalancer service happens in the background. You will che
 
 **STEP 5: Create a secret to hold the sa password**
 
-In order to use a password to connect to SQL Server, Kubernetes provides an object called a *secret*. Use the script **step5_create_secret.ps1** to create the secret which runs the following command: (You are free to change the password but you will need to use the new password later in this Activity to connect to SQL Server)
+In order to use a password to connect to SQL Server, Kubernetes provides an object called a *secret*. Use the script **step5_create_secret.sh** to create the secret which runs the following command: (You are free to change the password but you will need to use the new password later in this Activity to connect to SQL Server)
 
 ```Powershell
 kubectl create secret generic mssql-secret --from-literal=SA_PASSWORD="Sql2019isfast"
@@ -195,7 +195,7 @@ You cannot retrieve the plaintext of the password from the secret later so you n
 
 SQL Server needs persistent storage for databases and files. This is a similar concept to using a volume with containers to map to directories in the SQL Server container. Disk systems are exposed in Kubernetes as a **StorageClass**. Azure Kubernetes Service (AKS) exposes a StorageClass called **managed-premium** which is mapped to Azure Premium Storage. Applications like SQL Server can use a Persistent Volume Claim (PVC) to request storage from the azure-disk StorageClass.
 
-Execute the script **step6_create_storage.ps1** to create a Persistent Volume Claim using the following command:
+Execute the script **step6_create_storage.sh** to create a Persistent Volume Claim using the following command:
 
 ```Powershell
 kubectl apply -f storage.yaml
@@ -224,7 +224,7 @@ When this command completes you should see the following message:
 
 **STEP 7: Deploy a pod with a SQL Server container**
 
-Now that you have deployed a LoadBalancer service, a secret, and a Persistent Volume Claim (PVC),you have all the components to deploy a pod running a SQL Server container. To deploy the pod you will use a concept called **Deployment** which provides the ability to declare a **ReplicaSet**. Run the script **step7_deploy_sql2019.ps1** and after it executes you will analyze the details of the deployment. This scripts runs the command:
+Now that you have deployed a LoadBalancer service, a secret, and a Persistent Volume Claim (PVC),you have all the components to deploy a pod running a SQL Server container. To deploy the pod you will use a concept called **Deployment** which provides the ability to declare a **ReplicaSet**. Run the script **step7_deploy_sql2019.sh** and after it executes you will analyze the details of the deployment. This scripts runs the command:
 
 ```Powershell
 kubectl apply -f sql2019deployment.yaml --record
@@ -336,7 +336,7 @@ This final section maps the Persistent Volume Claim (PVC) with the directory /va
 
 **STEP 8: Check the deployment and pod status**
 
-Check the status of the deployment and pod by executing the script **step8_check_deployment.ps1**which runs these commands:
+Check the status of the deployment and pod by executing the script **step8_check_deployment.sh**which runs these commands:
 
 ```Powershell
 kubectl get pods
@@ -369,7 +369,7 @@ If your deployment has not completed, continue through the Activity and check it
 
 **STEP 9: Look at logs from the pod**
 
-You can examine the contents of logs from the container in the pod by executing the script **step9_getlogs.ps1** which runs the following command:
+You can examine the contents of logs from the container in the pod by executing the script **step9_getlogs.sh** which runs the following command:
 
 ```Powershell
 kubectl logs -l app=mssql --tail=100000
@@ -380,7 +380,7 @@ Your output should be the standard SQL Server ERRORLOG output.
 
 **STEP 10: Look at events from the cluster**
 
-One way to gain insights for the cluster *for the current namespace* is to look at *events*. Events are a sequence of actions performed across the cluster. They can be used to gain insights across the cluster especially if there are issues. Execute the script **step10_getevents.ps1** which runs the following command:
+One way to gain insights for the cluster *for the current namespace* is to look at *events*. Events are a sequence of actions performed across the cluster. They can be used to gain insights across the cluster especially if there are issues. Execute the script **step10_getevents.sh** which runs the following command:
 
 ```Powershell
 kubectl get events
@@ -401,7 +401,7 @@ You can see the sequence of events to deploy the pod and run a container in the 
 
 **STEP 11: Look at details of the pod**
 
-Kubernetes also provides the ability to gain insights into the details of the pod deployment by *describing* the pod. Run the script **step11_describe_pod.ps1** which runs the following command:
+Kubernetes also provides the ability to gain insights into the details of the pod deployment by *describing* the pod. Run the script **step11_describe_pod.sh** which runs the following command:
 
 ```Powershell
 kubectl describe pod -l app=mssql
@@ -412,7 +412,7 @@ The output of this command is lengthy but provides details of the pod including 
 
 **STEP 12: Run a query against SQL Server**
 
-Now using the LoadBalancer service as the "servername" which includes a port you can run a query against SQL Server deployed in the pod. Use the script **step12_querysql.ps1** to run a query to find the version of SQL Server. The script uses Powershell to dynamically find the EXTERNAL IP address of the Load Balancer service with this command (Note: the bash shell equivalent uses grep and awk):
+Now using the LoadBalancer service as the "servername" which includes a port you can run a query against SQL Server deployed in the pod. Use the script **step12_querysql.sh** to run a query to find the version of SQL Server. The script uses Powershell to dynamically find the EXTERNAL IP address of the Load Balancer service with this command (Note: the bash shell equivalent uses grep and awk):
 
 
 ```powershell
@@ -464,7 +464,7 @@ All scripts for this activity can be found in the **sql2019workshop\07_SQLOnKube
 
 **STEP 13: Create a new database on SQL Server**
 
-Connect to SQL Server deployed in Kubernetes and create a new database. Use the script **step13_createdb.ps1** to create the database and query all databases in master. The script runs the following command (using the same technique as in Activity 7.0 to dynamically connect to SQL Server using the Load Balancer)
+Connect to SQL Server deployed in Kubernetes and create a new database. Use the script **step13_createdb.sh** to create the database and query all databases in master. The script runs the following command (using the same technique as in Activity 7.0 to dynamically connect to SQL Server using the Load Balancer)
 
 
 ```powershell
@@ -480,7 +480,7 @@ The result of the command should be a list of databases that includes system dat
 
 **STEP 14: Get the status of running pods**
 
-Get the status of running pods in the mssql namespace which includes STATUS and the private IP address associated with the pod. Use the script **step14_getpods.ps1** which runs the following command:
+Get the status of running pods in the mssql namespace which includes STATUS and the private IP address associated with the pod. Use the script **step14_getpods.sh** which runs the following command:
 
 ```Powershell
 kubectl get pods -o wide
@@ -492,7 +492,7 @@ mssql-deployment-68769447bc-zmgff   1/1     Running   0          7m35s   10.244.
 
 **STEP 15: Crash SQL Server**
 
-Because was deployed with a Replicas value of 1, Kubernetes will attempt to ensure all containers in the pod are Running. If the container crashes in the pod, Kubernetes will automatically restart it. Simulate this behavior by running the script **step15_crashsql.ps1** which runs the following command:
+Because was deployed with a Replicas value of 1, Kubernetes will attempt to ensure all containers in the pod are Running. If the container crashes in the pod, Kubernetes will automatically restart it. Simulate this behavior by running the script **step15_crashsql.sh** which runs the following command:
 
 ```powershell
 $Service = kubectl get service | Select-String -Pattern mssql-service | Out-String
@@ -508,7 +508,7 @@ When this command completes you should see the following message:
 
 **STEP 16: Check status and IP address of running pods**
 
-Check the status of the pod with the SQL Server by running the script **step16_getpods.ps1** which runs the following command (the same command in STEP 14)
+Check the status of the pod with the SQL Server by running the script **step16_getpods.sh** which runs the following command (the same command in STEP 14)
 
 ```Powershell
 kubectl get pods -o wide
@@ -517,7 +517,7 @@ Your results should look similar as in STEP 14. The name of the pod, STATUS, and
 
 **STEP 17: Query SQL Server**
 
-To validate SQL Server is up and running with the same set of databases, run the script **step17_querysql.ps1** which runs the following command:
+To validate SQL Server is up and running with the same set of databases, run the script **step17_querysql.sh** which runs the following command:
 
 ```powershell
 $Service = kubectl get service | Select-String -Pattern mssql-service | Out-String
@@ -531,7 +531,7 @@ Your results should be the same version of SQL Server as it was first deployed a
 
 **STEP 18: Simulate a pod failure**
 
-If the pod has a failure in the Kubernetes cluster, Kubernetes will automatically schedule a new pod with the same set of containers. The Private IP address of the pod may change but you can still connect to the same SQL Server using the LoadBalancer which will map to the new Private IP address. Use the script **step18_podfailure.ps1** which runs the following command:
+If the pod has a failure in the Kubernetes cluster, Kubernetes will automatically schedule a new pod with the same set of containers. The Private IP address of the pod may change but you can still connect to the same SQL Server using the LoadBalancer which will map to the new Private IP address. Use the script **step18_podfailure.sh** which runs the following command:
 
 ```Powershell
 kubectl delete pod -l app=mssql
@@ -542,7 +542,7 @@ When this command completes, you should see the following message (your pod name
 
 **STEP 19: Check status and IP address of running pods**
 
-Check the status and IP of the pod by running the script **step19_getpods.ps1** which runs the following command:
+Check the status and IP of the pod by running the script **step19_getpods.sh** which runs the following command:
 
 ```Powershell
 kubectl get pods -o wide
@@ -551,7 +551,7 @@ The results of this command will yield a new pod NAME and a new IP address. If y
 
 **STEP 20: Query SQL Server**
 
-Even though the new pod has a new IP address and was rescheduled, the LoadBalancer is redirected to the pod and the databases are still intact. Use the script **step20_querysql.ps1** which runs the following command.
+Even though the new pod has a new IP address and was rescheduled, the LoadBalancer is redirected to the pod and the databases are still intact. Use the script **step20_querysql.sh** which runs the following command.
 
 Take time to examine how the Powershell script is written to dynamically retrieve the LoadBalancer IP address and use that to connect to SQL Server:
 
@@ -567,7 +567,7 @@ Your results should be the same SQL Server version and same set of databases. Th
 
 **STEP 21: Cleanup resources**
 
-Cleanup all deployed resources by running the script **cleanup.ps1**. This will delete the mssql namespace which delete all objects created in this activity. This shows another convenience of using a namespace since a single command can remove all objects created in that namespace.
+Cleanup all deployed resources by running the script **cleanup.sh**. This will delete the mssql namespace which delete all objects created in this activity. This shows another convenience of using a namespace since a single command can remove all objects created in that namespace.
 
 When you are done proceed to the **Activity Summary** section for the Activity below.
 
